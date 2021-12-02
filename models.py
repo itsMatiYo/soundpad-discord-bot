@@ -14,6 +14,7 @@ class Command(Model):
     server_id = BigIntegerField()
 
     class Meta:
+        sdsd
         database = db  # This model uses the "people.db" database.
 
 
