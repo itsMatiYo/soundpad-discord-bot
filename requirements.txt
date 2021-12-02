@@ -1,0 +1,8 @@
+discord.py
+discord.py[voice]
+colorlog
+PyNaCl
+dnspython
+async-timeout
+peewee
+python-dotenv

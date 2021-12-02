@@ -1,0 +1,5 @@
+ffmpeg.exe
+sqlite.db   
+Procfile
+.env
+__pycache__
