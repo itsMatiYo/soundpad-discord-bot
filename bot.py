@@ -1,10 +1,16 @@
+import requests
 import discord
 from discord import FFmpegPCMAudio
 from discord.ext import commands
-from models import Command, validate_command_name, validate_command_url
+from dotenv import load_dotenv
+import os
+from models import delete_cm, filter_name, filter_server, filter_url, get_url
 
 
 bot = commands.Bot(command_prefix='-', description="ChadPaaaaad")
+
+load_dotenv()
+fb = os.getenv('FIREBASE_API')
 
 
 @bot.event
@@ -15,16 +21,19 @@ async def on_ready():
 
 @bot.command(name='sos')
 async def help1(ctx):
-    commands = Command.select().where(Command.server_id == int(ctx.guild.id))
+    r = requests.get(
+        f'{fb}/commands.json')
+    jr = r.json()
+    cmms = filter_server(jr, str(ctx.guild.id))
     embed = discord.Embed(
         title='ChadPad Commands For this server',
         description="""""",
         colour=discord.Colour.dark_teal(),
     )
-    if commands:
+    if cmms:
         commands_txt = ""
-        for cm in commands:
-            commands_txt += f"{cm.name} ,"
+        for cm in cmms:
+            commands_txt += f'{jr[cm]["name"]} , '
     else:
         commands_txt = "No commands added for now"
     embed.set_footer(text='Use this bot like a CHAD!')
@@ -41,22 +50,32 @@ async def help1(ctx):
 @bot.command(name='add')
 async def add(ctx, *args):
     embed = discord.Embed()
-    if ctx.author.guild_permissions.administrator:
+    r = requests.get(
+        f'{fb}/commands.json')
+    jr = r.json()
+    if ctx.author.guild_permissions.administrator or ctx.author.id == 687701334467543100:
         if args:
             try:
                 name = args[0]
                 url = args[1]
-                server_id = int(ctx.guild.id)
-                if not(validate_command_name(name, server_id)):
-                    await ctx.send('`A command with this name already exists`')
-                elif not(validate_command_url(url, server_id)):
-                    await ctx.send('`A command with this url already exists`')
-                else:
-                    c1 = Command.create(
-                        name=args[0], url=args[1], server_id=ctx.guild.id,)
-                    await ctx.send(f'Created ✅')
             except:
                 await ctx.send('`-add "<name>" "<url>"`')
+
+            server_id = str(ctx.guild.id)
+            if filter_server(filter_name(jr, name), server_id):
+                await ctx.send('`A command with this name already exists`')
+            elif filter_server(filter_url(jr, url), server_id):
+                await ctx.send('`A command with this url already exists`')
+            else:
+                try:
+                    payload = '{"url":"' + str(url) + '","name": "' + \
+                        str(name) + '","server":"' + str(server_id) + '"}'
+                    r = requests.post(
+                        f'{fb}/commands.json', data=payload)
+                except:
+                    await ctx.send(f'Contact MatiYo, DB has encountered problems.')
+                if r.status_code == 200:
+                    await ctx.send(f'Created ✅')
         else:
             await ctx.send('`-add "<name>" "<url>"`')
     else:
@@ -65,14 +84,17 @@ async def add(ctx, *args):
 
 @bot.command(name='del')
 async def delete(ctx, args):
-    if ctx.author.guild_permissions.administrator:
+    if ctx.author.guild_permissions.administrator or ctx.author.id == 687701334467543100:
+        r = requests.get(
+            f'{fb}/commands.json')
+        jr = r.json()
         # admin permission
-        obj = Command.get_or_none(Command.name == args,
-                                  Command.server_id == ctx.guild.id)
+        command = filter_name(filter_server(jr, str(ctx.guild.id)), args)
         try:
-            if obj:
-                obj.delete_instance()
-                await ctx.send('`Deleted`')
+            if command:
+                r = delete_cm(command)
+                if r.status_code == 200:
+                    await ctx.send('`Deleted ❌`')
             else:
                 await ctx.send(f'`No such command with {args}`')
         except:
@@ -84,15 +106,19 @@ async def delete(ctx, args):
 @bot.command(name='p')
 async def play(ctx, args):
     # everyone except banned
-    obj = Command.get_or_none(Command.name == args,
-                              Command.server_id == ctx.guild.id)
-    if obj:
+    r = requests.get(
+        f'{fb}/commands.json')
+    jr = r.json()
+    command = filter_name(filter_server(jr, str(ctx.guild.id)), args)
+    url = get_url(jr)
+
+    if command:
         channel = ctx.author.voice.channel
         try:
             voice = await channel.connect()
         except:
             voice = ctx.guild.voice_client
-        source = FFmpegPCMAudio(obj.url)
+        source = FFmpegPCMAudio(url)
         player = voice.play(source)
     else:
         await ctx.send('`No such command.404`')
@@ -104,6 +130,3 @@ async def disconnect(ctx):
         await ctx.guild.voice_client.disconnect()
     except:
         await ctx.send("`I'm not connected`")
-
-
-# banned people
