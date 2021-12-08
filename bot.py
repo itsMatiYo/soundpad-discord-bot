@@ -110,7 +110,7 @@ async def play(ctx, args):
         f'{fb}/commands.json')
     jr = r.json()
     command = filter_name(filter_server(jr, str(ctx.guild.id)), args)
-    url = get_url(jr)
+    url = get_url(command)
 
     if command:
         channel = ctx.author.voice.channel
@@ -124,7 +124,7 @@ async def play(ctx, args):
         await ctx.send('`No such command.404`')
 
 
-@bot.command(name='dc')
+@ bot.command(name='dc')
 async def disconnect(ctx):
     try:
         await ctx.guild.voice_client.disconnect()
