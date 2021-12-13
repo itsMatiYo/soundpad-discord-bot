@@ -113,11 +113,17 @@ async def play(ctx, args):
     url = get_url(command)
 
     if command:
+        global voice
         channel = ctx.author.voice.channel
-        try:
+        if ctx.guild.voice_client:
+            ch = ctx.guild.voice_client.channel
+            if ch != channel:
+                await ctx.guild.voice_client.disconnect()
+                voice = await channel.connect()
+            else:
+                voice = ctx.guild.voice_client
+        else:
             voice = await channel.connect()
-        except:
-            voice = ctx.guild.voice_client
         source = FFmpegPCMAudio(url)
         player = voice.play(source)
     else:
