@@ -48,7 +48,7 @@ async def help1(ctx):
 
 
 @bot.command(name='add')
-async def add(ctx, *args):
+async def add(ctx, args):
     embed = discord.Embed()
     r = requests.get(
         f'{fb}/commands.json')
@@ -131,7 +131,7 @@ async def play(ctx, args):
 
 
 @bot.command(name='dc')
-async def disconnect(ctx, *args):
+async def disconnect(ctx):
     try:
         await ctx.guild.voice_client.disconnect()
     except:
