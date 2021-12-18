@@ -56,16 +56,16 @@ async def add(ctx, *args):
     if ctx.author.guild_permissions.administrator or ctx.author.id == 687701334467543100:
         if args:
             try:
-                name = args[0]
-                url = args[1]
+                global name, url
+                name, url = args.split(' ')
             except:
-                await ctx.send('`-add "<name>" "<url>"`')
+                await ctx.channel.send('`-add "<name>" "<url>"`')
 
             server_id = str(ctx.guild.id)
             if filter_server(filter_name(jr, name), server_id):
-                await ctx.send('`A command with this name already exists`')
+                await ctx.channel.send('`A command with this name already exists`')
             elif filter_server(filter_url(jr, url), server_id):
-                await ctx.send('`A command with this url already exists`')
+                await ctx.channel.send('`A command with this url already exists`')
             else:
                 try:
                     payload = '{"url":"' + str(url) + '","name": "' + \
@@ -73,13 +73,13 @@ async def add(ctx, *args):
                     r = requests.post(
                         f'{fb}/commands.json', data=payload)
                 except:
-                    await ctx.send(f'Contact MatiYo, DB has encountered problems.')
+                    await ctx.channel.send(f'Contact MatiYo, DB has encountered problems.')
                 if r.status_code == 200:
-                    await ctx.send(f'Created ✅')
+                    await ctx.channel.send(f'Created ✅')
         else:
-            await ctx.send('`-add "<name>" "<url>"`')
+            await ctx.channel.send('`-add "<name>" "<url>"`')
     else:
-        await ctx.send('`Only admins can add`')
+        await ctx.channel.send('`Only admins can add`')
 
 
 @bot.command(name='del')
@@ -94,13 +94,13 @@ async def delete(ctx, args):
             if command:
                 r = delete_cm(command)
                 if r.status_code == 200:
-                    await ctx.send('`Deleted ❌`')
+                    await ctx.channel.send('`Deleted ❌`')
             else:
-                await ctx.send(f'`No such command with {args}`')
+                await ctx.channel.send(f'`No such command with {args}`')
         except:
-            await ctx.send('`Couldnt delete, Reach MatiYo`')
+            await ctx.channel.send('`Couldnt delete, Reach MatiYo`')
     else:
-        await ctx.send('`Only admins can delete`')
+        await ctx.channel.send('`Only admins can delete`')
 
 
 @bot.command(name='p')
@@ -110,9 +110,9 @@ async def play(ctx, args):
         f'{fb}/commands.json')
     jr = r.json()
     command = filter_name(filter_server(jr, str(ctx.guild.id)), args)
-    url = get_url(command)
 
     if command:
+        url = get_url(command)
         global voice
         channel = ctx.author.voice.channel
         if ctx.guild.voice_client:
@@ -127,18 +127,28 @@ async def play(ctx, args):
         source = FFmpegPCMAudio(url)
         player = voice.play(source)
     else:
-        await ctx.send('`No such command.404`')
+        await ctx.channel.send('`No such command.404`')
 
 
 @bot.command(name='dc')
-async def disconnect(ctx):
+async def disconnect(ctx, *args):
     try:
         await ctx.guild.voice_client.disconnect()
     except:
-        await ctx.send("`I'm not connected`")
+        await ctx.channel.send("`I'm not connected`")
 
 
 @bot.event
 async def on_message(msg):
-    if str(msg.content[1:-2]).strip().replace(' ', '') == '' and msg.content != '.':
+    if str(msg.content[1:-2]).strip().replace(' ', '') == '' and msg.content != '.' and len(msg.content) > 5:
         await msg.delete()
+    elif str(msg.content).startswith('-dc'):
+        await disconnect(msg)
+    elif str(msg.content).startswith('-sos'):
+        await help1(msg)
+    elif str(msg.content).startswith('-p'):
+        await play(msg, msg.content[3:])
+    elif str(msg.content).startswith('-add'):
+        await add(msg, msg.content[5:])
+    elif str(msg.content).startswith('-del'):
+        await delete(msg, msg.content[5:])
