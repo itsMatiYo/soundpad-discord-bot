@@ -19,12 +19,6 @@ async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="-sos"))
 
 
-@bot.event
-async def on_message(msg):
-    if str(msg.content[1:-2]).strip().replace(' ', '') == '':
-        await msg.delete()
-
-
 @bot.command(name='sos')
 async def help1(ctx):
     r = requests.get(
@@ -142,3 +136,9 @@ async def disconnect(ctx):
         await ctx.guild.voice_client.disconnect()
     except:
         await ctx.send("`I'm not connected`")
+
+
+@bot.event
+async def on_message(msg):
+    if str(msg.content[1:-2]).strip().replace(' ', '') == '' and msg.content != '.':
+        await msg.delete()
