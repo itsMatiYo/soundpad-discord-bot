@@ -144,7 +144,7 @@ async def on_message(msg):
         await msg.delete()
     elif str(msg.content).startswith('-dc'):
         await disconnect(msg)
-    elif str(msg.content).startswith('-sos'):
+    elif str(msg.content).startswith('-sos') or str(msg.content).startswith('-help'):
         await help1(msg)
     elif str(msg.content).startswith('-p'):
         await play(msg, msg.content[3:])
