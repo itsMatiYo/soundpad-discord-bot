@@ -5,19 +5,6 @@ from dotenv import load_dotenv
 load_dotenv()
 fb = os.getenv('FIREBASE_API')
 
-r = requests.get(
-    f'{fb}/commands.json')
-
-# print(r.json())
-# jr = r.json()
-
-# for i in jr:
-#     print(i)
-#     print(jr[i])
-#     if jr[i]['name'] == 'ssddd':
-#         print('sdsd')
-#         break
-
 
 def filter_name(data, name):
     filtered_data = {}

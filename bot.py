@@ -5,6 +5,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 from models import delete_cm, filter_name, filter_server, filter_url, get_url
+from discord.utils import get
 
 
 bot = commands.Bot(command_prefix='-', description="ChadPaaaaad")
@@ -140,8 +141,18 @@ async def disconnect(ctx):
 
 @bot.event
 async def on_message(msg):
+    # moderating chat
+    mentions = ['@everyone', '@here']
     if str(msg.content[1:-2]).strip().replace(' ', '') == '' and msg.content != '.' and len(msg.content) > 5:
         await msg.delete()
+    elif any(x in msg.content for x in mentions):
+        if not(msg.author.guild_permissions.mention_everyone):
+            await msg.delete()
+            try:
+                role = get(msg.guild.roles, name='Muted')
+                await msg.author.add_roles(role, reason="scam link (everyone or here)")
+            except:
+                await msg.channel.send('`Deleted mentioning everyone , because sender does not have permissions. If you wish to give these spammers a role, create a role named "Muted".`')
     elif str(msg.content).startswith('-dc'):
         await disconnect(msg)
     elif str(msg.content).startswith('-sos') or str(msg.content).startswith('-help'):
