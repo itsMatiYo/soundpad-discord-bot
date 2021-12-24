@@ -1,3 +1,4 @@
+from discord import colour
 import requests
 import discord
 from discord import FFmpegPCMAudio
@@ -8,10 +9,17 @@ from models import delete_cm, filter_name, filter_server, filter_url, get_url
 from discord.utils import get
 
 
+# reply to playing command
+# and reply to other
+
 bot = commands.Bot(command_prefix='-', description="ChadPaaaaad")
 
 load_dotenv()
 fb = os.getenv('FIREBASE_API')
+
+
+# Embed
+chad_pic = "https://cdn.discordapp.com/attachments/878977444873371678/887722269508513852/avatars-JinSVqyNLhx1tPzL-xSS9Sw-t500x500.jpg"
 
 
 @bot.event
@@ -39,18 +47,18 @@ async def help1(ctx):
         commands_txt = "No commands added for now"
     embed.set_footer(text='Use this bot like a CHAD!')
     embed.set_thumbnail(
-        url="https://cdn.discordapp.com/attachments/878977444873371678/887722269508513852/avatars-JinSVqyNLhx1tPzL-xSS9Sw-t500x500.jpg")
+        url=chad_pic)
     embed.add_field(name="Add sound", value="-add <name> <url>")
     embed.add_field(name="Delete sound", value="-del <name>")
     embed.add_field(name="Play Sound", value="-p <name>")
     embed.add_field(name="Disconnect", value="-dc")
     embed.add_field(name='Comamnds', value=commands_txt, inline=False)
-    await ctx.channel.send(embed=embed)
+    await ctx.reply(embed=embed)
 
 
 @bot.command(name='add')
 async def add(ctx, args):
-    embed = discord.Embed()
+    embed = discord.Embed(colour=discord.Colour.dark_red())
     r = requests.get(
         f'{fb}/commands.json')
     jr = r.json()
@@ -60,13 +68,16 @@ async def add(ctx, args):
                 global name, url
                 name, url = args.split(' ')
             except:
-                await ctx.channel.send('`-add "<name>" "<url>"`')
+                embed.title = 'Add voice using this command:\n-add "<name>" "<url>"'
+                await ctx.reply(embed=embed)
 
             server_id = str(ctx.guild.id)
             if filter_server(filter_name(jr, name), server_id):
-                await ctx.channel.send('`A command with this name already exists`')
+                embed.title = 'A command with this name already exists'
+                await ctx.reply(embed=embed)
             elif filter_server(filter_url(jr, url), server_id):
-                await ctx.channel.send('`A command with this url already exists`')
+                embed.title = 'A command with this url already exists'
+                await ctx.reply(embed=embed)
             else:
                 try:
                     payload = '{"url":"' + str(url) + '","name": "' + \
@@ -74,13 +85,18 @@ async def add(ctx, args):
                     r = requests.post(
                         f'{fb}/commands.json', data=payload)
                 except:
-                    await ctx.channel.send(f'Contact MatiYo, DB has encountered problems.')
+                    embed.title = 'Contact MatiYo, DB has encountered problems.'
+                    await ctx.reply(embed=embed)
                 if r.status_code == 200:
-                    await ctx.channel.send(f'Created ✅')
+                    embed.colour = discord.Colour.green()
+                    embed.title = 'Created ✅'
+                    await ctx.reply(embed=embed)
         else:
-            await ctx.channel.send('`-add "<name>" "<url>"`')
+            embed.title = 'Add voice using this command:\n-add "<name>" "<url>"'
+            await ctx.reply(embed=embed)
     else:
-        await ctx.channel.send('`Only admins can add`')
+        embed.title = 'Only admins can add'
+        await ctx.reply(embed=embed)
 
 
 @bot.command(name='del')
@@ -95,13 +111,13 @@ async def delete(ctx, args):
             if command:
                 r = delete_cm(command)
                 if r.status_code == 200:
-                    await ctx.channel.send('`Deleted ❌`')
+                    await ctx.reply('`Deleted ❌`')
             else:
-                await ctx.channel.send(f'`No such command with {args}`')
+                await ctx.reply(f'`No such command with {args}`')
         except:
-            await ctx.channel.send('`Couldnt delete, Reach MatiYo`')
+            await ctx.reply('`Couldnt delete, Reach MatiYo`')
     else:
-        await ctx.channel.send('`Only admins can delete`')
+        await ctx.reply('`Only admins can delete`')
 
 
 @bot.command(name='p')
@@ -118,6 +134,7 @@ async def play(ctx, args):
         channel = ctx.author.voice.channel
         if ctx.guild.voice_client:
             ch = ctx.guild.voice_client.channel
+            # same channel as the person?
             if ch != channel:
                 await ctx.guild.voice_client.disconnect()
                 voice = await channel.connect()
@@ -125,18 +142,30 @@ async def play(ctx, args):
                 voice = ctx.guild.voice_client
         else:
             voice = await channel.connect()
-        source = FFmpegPCMAudio(url)
-        player = voice.play(source)
+        try:
+            source = FFmpegPCMAudio(url)
+            player = voice.play(source)
+            embed = discord.Embed(
+                title=f'Playing {args}🎧', colour=discord.Colour.green(), description=url)
+        except:
+            embed = discord.Embed(
+                title=f'Could not play {args}', colour=discord.Colour.red())
+        embed.set_thumbnail(url=chad_pic)
+        await ctx.reply(embed=embed)
     else:
-        await ctx.channel.send('`No such command.404`')
+        embed = discord.Embed(
+            title=f'No such command ({args})', colour=discord.Colour.dark_red())
+        embed.set_thumbnail(url=chad_pic)
+        await ctx.reply(embed=embed)
 
 
 @bot.command(name='dc')
 async def disconnect(ctx):
     try:
         await ctx.guild.voice_client.disconnect()
+        await ctx.reply()
     except:
-        await ctx.channel.send("`I'm not connected`")
+        await ctx.reply("`I'm not connected`")
 
 
 @bot.event
