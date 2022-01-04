@@ -1,13 +1,13 @@
-from discord import colour
-import requests
-import discord
-from discord import FFmpegPCMAudio
-from discord.ext import commands
-from dotenv import load_dotenv
 import os
-from models import delete_cm, filter_name, filter_server, filter_url, get_url
-from discord.utils import get
 
+import discord
+import requests
+from discord import FFmpegPCMAudio, colour
+from discord.ext import commands
+from discord.utils import get
+from dotenv import load_dotenv
+
+from models import delete_cm, filter_name, filter_server, filter_url, get_url
 
 # reply to playing command
 # and reply to other
@@ -170,25 +170,27 @@ async def disconnect(ctx):
 
 @bot.event
 async def on_message(msg):
+    msg_content = msg.content.lower()
+    str(msg).lower()
     # moderating chat
     mentions = ['@everyone', '@here']
-    if str(msg.content[1:-2]).strip().replace(' ', '') == '' and msg.content != '.' and len(msg.content) > 5:
+    if str(msg_content[1:-2]).strip().replace(' ', '') == '' and msg_content != '.' and len(msg_content) > 5:
         await msg.delete()
-    elif any(x in msg.content for x in mentions):
+    elif any(x in msg_content for x in mentions):
         if not(msg.author.guild_permissions.mention_everyone):
             await msg.delete()
             try:
                 role = get(msg.guild.roles, name='Muted')
-                await msg.author.add_roles(role, reason="scam link (everyone or here)")
+                await msg.author.add_roles(role, reason="scam link (mentioning everyone or here)")
             except:
                 await msg.channel.send('`Deleted mentioning everyone , because sender does not have permissions. If you wish to give these spammers a role, create a role named "Muted".`')
-    elif str(msg.content).startswith('-dc'):
+    elif str(msg_content).startswith('-dc'):
         await disconnect(msg)
-    elif str(msg.content).startswith('-sos') or str(msg.content).startswith('-help'):
+    elif str(msg_content).startswith('-sos') or str(msg_content).startswith('-help'):
         await help1(msg)
-    elif str(msg.content).startswith('-p'):
-        await play(msg, msg.content[3:])
-    elif str(msg.content).startswith('-add'):
-        await add(msg, msg.content[5:])
-    elif str(msg.content).startswith('-del'):
-        await delete(msg, msg.content[5:])
+    elif str(msg_content).startswith('-p'):
+        await play(msg, msg_content[3:])
+    elif str(msg_content).startswith('-add'):
+        await add(msg, msg_content[5:])
+    elif str(msg_content).startswith('-del'):
+        await delete(msg, msg_content[5:])
