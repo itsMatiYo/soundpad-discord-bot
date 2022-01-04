@@ -171,7 +171,6 @@ async def disconnect(ctx):
 @bot.event
 async def on_message(msg):
     msg_content = msg.content.lower()
-    str(msg).lower()
     # moderating chat
     mentions = ['@everyone', '@here']
     if str(msg_content[1:-2]).strip().replace(' ', '') == '' and msg_content != '.' and len(msg_content) > 5:
