@@ -6,3 +6,5 @@ dnspython
 async-timeout
 python-dotenv
 requests
+gunicorn
+Flask
