@@ -26,3 +26,5 @@ Type `-del <command>` to delete command
 Type `-add <command> <url>` to add command. Be sure that the url should end in .mp4 or mp3 or other video or audio file formats. You can copy the link of a file in discord and use it as a url.
 
 #### This bot can also moderate (delete @everyone for members who can't mention everyone)
+
+### Also added flask so your project does not go idle (use [https://uptimerobot.com/] to ping site)

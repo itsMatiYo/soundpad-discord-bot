@@ -1,0 +1,30 @@
+{
+    "name":"Discord soundpad bot",
+    "description": "A minimal discord bot which can act as a soundpad",
+    "keywords": [
+        "discord",
+        "soundpad"
+      ],
+    "repository": "https://github.com/itsMatiYo/soundpad-discord-bot",
+    "env": {
+        "FIREBASE_API": {
+          "description": "Your Firebase RealTime database API",
+          "value":""
+        },
+        "TOKEN": {
+          "description": "Discord Bot Token",
+          "value": ""
+        }
+    },
+    "buildpacks": [
+        {
+            "url": "heroku/python"
+        },
+        {
+            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+        },
+        {
+            "url": "https://github.com/xrisk/heroku-opus.git"
+        }
+    ]
+}
