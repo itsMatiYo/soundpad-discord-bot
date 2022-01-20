@@ -1,5 +1,7 @@
 # Soundpad Discord Bot
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/itsMatiYo/soundpad-discord-bot/tree/master)
+
 After cloning the project create a .env file which has following variables:
 
 1. TOKEN (your bot token)
