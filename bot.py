@@ -32,6 +32,9 @@ async def on_ready():
 async def help1(ctx):
     r = requests.get(
         f'{fb}/commands.json')
+    if r.status_code != 200:
+        await ctx.reply('Could not connect to db')
+        return
     jr = r.json()
     cmms = filter_server(jr, str(ctx.guild.id))
     embed = discord.Embed(

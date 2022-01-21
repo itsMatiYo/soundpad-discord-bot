@@ -2,3 +2,4 @@ ffmpeg.exe
 .env
 __pycache__
 run.bat
+venv/
