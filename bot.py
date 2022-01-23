@@ -173,12 +173,16 @@ async def disconnect(ctx):
 
 @bot.event
 async def on_message(msg):
+    # ignoring bot messages
+    if msg.author == bot.user:
+        return
+        
     msg_content = msg.content.lower()
     # moderating chat
     mentions = ['@everyone', '@here']
     if str(msg_content[1:-2]).strip().replace(' ', '') == '' and msg_content != '.' and len(msg_content) > 5:
         await msg.delete()
-    elif any(x in msg_content for x in mentions) or str(msg_content).startswith('whо is first?') :
+    elif any(x in msg_content for x in mentions):
         if not(msg.author.guild_permissions.mention_everyone):
             await msg.delete()
             try:
@@ -186,6 +190,14 @@ async def on_message(msg):
                 await msg.author.add_roles(role, reason="scam link (mentioning everyone or here)")
             except:
                 await msg.channel.send('`Deleted mentioning everyone , because sender does not have permissions. If you wish to give these spammers a role, create a role named "Muted".`')
+    elif str(msg_content).find('who is first?') != -1:
+        print('deleting...')
+        await msg.delete()
+        try:
+            role = get(msg.guild.roles, name='Muted')
+            await msg.author.add_roles(role, reason="scam link (mentioning everyone or here)")
+        except:
+            await msg.channel.send('`Deleted (who is first?) , because sender look like spammers. If you wish to give these spammers a role, create a role named "Muted".`')
     elif str(msg_content).startswith('-dc'):
         await disconnect(msg)
     elif str(msg_content).startswith('-sos') or str(msg_content).startswith('-help'):
