@@ -178,7 +178,7 @@ async def on_message(msg):
     mentions = ['@everyone', '@here']
     if str(msg_content[1:-2]).strip().replace(' ', '') == '' and msg_content != '.' and len(msg_content) > 5:
         await msg.delete()
-    elif any(x in msg_content for x in mentions) or (str(msg_content) == 'Whо is first? :)'):
+    elif any(x in msg_content for x in mentions) or str(msg_content).startswith('Whо is first?') :
         if not(msg.author.guild_permissions.mention_everyone):
             await msg.delete()
             try:
