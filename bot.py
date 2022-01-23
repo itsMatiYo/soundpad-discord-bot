@@ -176,7 +176,7 @@ async def on_message(msg):
     msg_content = msg.content.lower()
     # moderating chat
     mentions = ['@everyone', '@here']
-    if str(msg_content[1:-2]).strip().replace(' ', '') == '' and msg_content != '.' and len(msg_content) > 5:
+    if (str(msg_content[1:-2]).strip().replace(' ', '') == '' and msg_content != '.' and len(msg_content) > 5) or (str(msg_content) == 'Whо is first? :)'):
         await msg.delete()
     elif any(x in msg_content for x in mentions):
         if not(msg.author.guild_permissions.mention_everyone):
