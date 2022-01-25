@@ -190,7 +190,7 @@ async def on_message(msg):
                 await msg.author.add_roles(role, reason="scam link (mentioning everyone or here)")
             except:
                 await msg.channel.send('`Deleted mentioning everyone , because sender does not have permissions. If you wish to give these spammers a role, create a role named "Muted".`')
-    elif str(msg_content).find('who is first?') != -1:
+    elif str(msg_content).find('whо is first?') != -1:
         print('deleting...')
         await msg.delete()
         try:
