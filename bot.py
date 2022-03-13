@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 import discord
@@ -21,12 +22,10 @@ fb = os.getenv('FIREBASE_API')
 # Embed
 chad_pic = "https://cdn.discordapp.com/attachments/878977444873371678/887722269508513852/avatars-JinSVqyNLhx1tPzL-xSS9Sw-t500x500.jpg"
 
-
 @bot.event
 async def on_ready():
     print('I have logged in as {0.user}'.format(bot))
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="-sos"))
-
 
 @bot.command(name='sos')
 async def help1(ctx):
@@ -49,6 +48,7 @@ async def help1(ctx):
     else:
         commands_txt = "No commands added for now"
     embed.set_footer(text='Use this bot like a CHAD!')
+    embed.add_field(name="Updates", value="Fixed dc bug and now disconnects after 15 mins of inactivity :)")
     embed.set_thumbnail(
         url=chad_pic)
     embed.add_field(name="Add sound", value="-add <name> <url>")
@@ -132,6 +132,7 @@ async def play(ctx, args):
     command = filter_name(filter_server(jr, str(ctx.guild.id)), args)
 
     if command:
+        playing = False
         url = get_url(command)
         global voice
         channel = ctx.author.voice.channel
@@ -150,11 +151,20 @@ async def play(ctx, args):
             player = voice.play(source)
             embed = discord.Embed(
                 title=f'Playing {args}🎧', colour=discord.Colour.green(), description=url)
+            playing = True
         except:
             embed = discord.Embed(
                 title=f'Could not play {args}', colour=discord.Colour.red())
         embed.set_thumbnail(url=chad_pic)
         await ctx.reply(embed=embed)
+        time = 0
+        while playing:
+            await asyncio.sleep(1)
+            time = time + 1
+            if time == 900:
+                await voice.disconnect()
+            if not voice.is_connected():
+                break
     else:
         embed = discord.Embed(
             title=f'No such command ({args})', colour=discord.Colour.dark_red())
@@ -166,7 +176,7 @@ async def play(ctx, args):
 async def disconnect(ctx):
     try:
         await ctx.guild.voice_client.disconnect()
-        await ctx.reply()
+        await ctx.reply('Disconnected')
     except:
         await ctx.reply("`I'm not connected`")
 
