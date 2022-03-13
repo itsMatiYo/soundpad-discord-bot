@@ -163,7 +163,7 @@ async def play(ctx, args):
             time = time + 1
             if time == 900:
                 await voice.disconnect()
-            if not voice.is_connected():
+            if voice.is_playing() or not(voice.is_connected()) :
                 break
     else:
         embed = discord.Embed(
