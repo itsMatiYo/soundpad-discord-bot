@@ -157,12 +157,16 @@ async def play(ctx, args):
                 title=f'Could not play {args}', colour=discord.Colour.red())
         embed.set_thumbnail(url=chad_pic)
         await ctx.reply(embed=embed)
+        while voice.is_playing():
+            await asyncio.sleep(1)
         time = 0
         while playing:
             await asyncio.sleep(1)
             time = time + 1
-            if time == 900:
+            if time >= 900:
                 await voice.disconnect()
+                await ctx.channel.send('Disconnected after 15 mins of inactivity')
+                break
             if voice.is_playing() or not(voice.is_connected()) :
                 break
     else:
